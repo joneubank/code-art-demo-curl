@@ -14,11 +14,9 @@ After `git clone` and `npm install`, run `npm start`!
 
 > Warning: The image generation algorithm is not fast, it can take several seconds to render every line.
 
-This will increase the resolution of the lines (and the drawing time) by approximately 25x. The best way to use this is to preview images with this disabled, then enable it to get a high res render for saving.
+This will increase the resolution of the lines (and the drawing time) by approximately 20x. The best way to use this is to preview images with this disabled, then enable it to get a high res render for saving.
 
 #### Color System
-
-> Note: This has three values but due to the WIP nature of artistic coding, some of the settings may not work as intended.
 
 Set this to `palette` to use a random palette, otherwise the image is in monochrome.
 
@@ -27,6 +25,10 @@ Set this to `palette` to use a random palette, otherwise the image is in monochr
 By default the flow field is being generated from simplex noise without curl. To enable the curl calculation on the field enable this.
 
 ### Code Notes
+
+#### Palette
+
+For nicer color combos, update the sketch config to use curated palettes instead of random. Random is useful when working with highlights sometimes.
 
 #### Noise Complexity
 
