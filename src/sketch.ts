@@ -236,10 +236,12 @@ const draw = ({ canvas, palette, params, rng }: Props) => {
       },
     );
 
+    rng.push('color select');
     const lineColor =
       isHighlight && ((highlightedAgent && rng.bool(0.85)) || rng.bool(0.04))
         ? jitterColor(rng.chooseOne(palette.colors.slice(1, 3)), rng)
         : rng.chooseOne(colors);
+    rng.pop();
 
     canvas.draw.path({
       path,
