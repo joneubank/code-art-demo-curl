@@ -140,7 +140,9 @@ const draw = ({ canvas, palette, params, rng }: Props) => {
   };
 
   const getAngle = (uv: Vec2): number =>
-    params.useCurl.value ? getCurlAngle(uv) : getNoiseAngle(uv);
+    params.useCurl.value
+      ? getCurlAngle(uv.scale(params.noiseResolution.value))
+      : getNoiseAngle(uv.scale(params.noiseResolution.value));
 
   const getAmplitude = (position: Vec2): number => {
     const value =
@@ -163,9 +165,7 @@ const draw = ({ canvas, palette, params, rng }: Props) => {
       const center = tile.uv
         .scale(canvas.get.maxDim())
         .add(canvas.get.maxDim() / (1 + params.divisions.value) / 2);
-      const angle = params.useCurl.value
-        ? getCurlAngle(tile.uv)
-        : getNoiseAngle(tile.uv);
+      const angle = getAngle(tile.uv);
       const amplitude = getAmplitude(tile.uv);
 
       // canvas.draw.circle({
@@ -179,7 +179,7 @@ const draw = ({ canvas, palette, params, rng }: Props) => {
         start,
         end: start.add(Vec2.unit().rotate(angle).scale(amplitude).scale(7)),
         stroke: {
-          color: rng.chooseOne(palette.colors),
+          color: new Color('white').set.alpha(0.7),
           width: strokeWidth * 2,
         },
       });
@@ -190,7 +190,7 @@ const draw = ({ canvas, palette, params, rng }: Props) => {
   const uvToCanvas = (uv: Vec2): Vec2 => uv.scale(canvas.get.size());
 
   const agentStep = (uv: Vec2, amplitude: number): Vec2 => {
-    const angle = getAngle(uv.scale(params.noiseResolution.value));
+    const angle = getAngle(uv);
     const stepSize = params.preciseSteps.value
       ? preciseStepSize
       : largeStepSize;
