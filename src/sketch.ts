@@ -37,13 +37,15 @@ const params = {
   }),
   vectorWidth: Params.range('Vector Width', 0.5),
   vectorAngle: Params.range('Vector Angle', 0.5),
+  noiseResolution: Params.range('Noise Resolution', 1, { max: 5 }),
   useCurl: Params.checkbox('Use Curl', false),
   headerAgents: Params.header('Agents'),
   agentCount: Params.range('Agent Count', 500, { max: 5000, step: 1 }),
-  agentSteps: Params.range('Agent Steps', 20, { max: 300, step: 1 }),
+  agentSteps: Params.range('Agent Steps', 10, { max: 50, step: 1 }),
   preciseSteps: Params.checkbox('Precise Steps', false),
   useNoise: Params.checkbox('Use Extra Noise', false),
   extraNoiseAmplitude: Params.range('Extra Noise Amplitude', 0.5),
+  highlightSize: Params.range('Highlight Size', 0.1),
   colorSelect: Params.select('Color System', 'monochrome', [
     'monochrome',
     'highlight',
@@ -98,13 +100,11 @@ const draw = ({ canvas, palette, params, rng }: Props) => {
         // new Color('#eee'),
       ];
 
-  console.log(params.colorSelect.value, background);
-
-  canvas.fill('black'); //background);
+  canvas.fill(background);
 
   const octaves = [1];
-  const preciseStepSize = 0.003;
-  const largeStepSize = 0.05;
+  const preciseStepSize = 0.001;
+  const largeStepSize = 0.02;
 
   const noiseA = Noise.simplex3(rng.int(0, 1000000), { octaves });
   const noiseB = Noise.simplex3(rng.int(0, 1000000), {
@@ -190,7 +190,7 @@ const draw = ({ canvas, palette, params, rng }: Props) => {
   const uvToCanvas = (uv: Vec2): Vec2 => uv.scale(canvas.get.size());
 
   const agentStep = (uv: Vec2, amplitude: number): Vec2 => {
-    const angle = getAngle(uv);
+    const angle = getAngle(uv.scale(params.noiseResolution.value));
     const stepSize = params.preciseSteps.value
       ? preciseStepSize
       : largeStepSize;
@@ -209,7 +209,8 @@ const draw = ({ canvas, palette, params, rng }: Props) => {
     //   );
     // return uv.add(mainStep).add(noiseStep);
     const noiseStep = mainStep.rotate(
-      noiseB(uv.x, uv.y, 0) * params.extraNoiseAmplitude.value * 5,
+      noiseB(uv.x, uv.y, 0) *
+        (params.useNoise.value ? params.extraNoiseAmplitude.value : 0),
     );
     return uv.add(noiseStep);
   };
@@ -219,7 +220,7 @@ const draw = ({ canvas, palette, params, rng }: Props) => {
     const path = new Structures.Path(uvToCanvas(pos));
 
     const highlightTest = (pos: Vec2) =>
-      pos.diff(highlightOrigin).magnitude() < 1;
+      pos.diff(highlightOrigin).magnitude() < params.highlightSize.value;
     let highlightedAgent = highlightTest(pos);
 
     repeat(
@@ -235,18 +236,18 @@ const draw = ({ canvas, palette, params, rng }: Props) => {
       },
     );
 
-    highlightedAgent &&
-      canvas.draw.path({
-        path,
-        stroke: {
-          color:
-            // (highlightedAgent && rng.bool(0.85)) ||
-            // (isHighlight && rng.bool(0.04))
-            //   ? jitterColor(rng.chooseOne(palette.colors.slice(1, 3)), rng)
-            rng.chooseOne(colors).set.alpha(0.7),
-          width: strokeWidth,
-        },
-      });
+    const lineColor =
+      isHighlight && ((highlightedAgent && rng.bool(0.85)) || rng.bool(0.04))
+        ? jitterColor(rng.chooseOne(palette.colors.slice(1, 3)), rng)
+        : rng.chooseOne(colors);
+
+    canvas.draw.path({
+      path,
+      stroke: {
+        color: lineColor.set.alpha(0.7),
+        width: strokeWidth,
+      },
+    });
   };
 
   const drawAgents = () => {
