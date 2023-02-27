@@ -2,6 +2,8 @@
 
 ![Sample Sketch](./docs/commensally%20honorable%20unsighting%20-%20beseechingly%20potful%20postins.png)
 
+Play with the [Live Demo](https://code-art-curl.netlify.app/)!
+
 Built using [@code-not-art/sketch](https://www.npmjs.com/package/@code-not-art/sketch) from the ready to go [development template](https://github.com/code-not-art/template)
 
 ## Quick Start
